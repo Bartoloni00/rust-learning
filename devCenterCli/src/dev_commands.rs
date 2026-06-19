@@ -11,13 +11,24 @@ pub struct Proyect {
 // Usar un vector es como crear un array
 let mut projects: Vec<Proyect> = Vec::new();
 */
+
+use std::fs;
+
 pub struct Proyect {
+    id: usize,
     name: String,
     // Add more fields as needed
 }
 
 pub struct DevCenter {
     projects: Vec<Proyect>,
+    next_id: usize,
+}
+
+impl Proyect {
+    pub fn to_json(&self) -> String {
+        format!(r#"{{"id": {}, "name": "{}"}}"#, self.id, self.name)
+    }
 }
 
 impl DevCenter {
@@ -26,19 +37,47 @@ impl DevCenter {
     pub fn new() -> Self {
         DevCenter {
             projects: Vec::new(),
+            next_id: 0,
         }
+    }
+
+    fn projects_to_json(&self) -> String {
+        let mut json = String::from("[");
+        for (i, proyect) in self.projects.iter().enumerate() {
+            if i > 0 {
+                json.push(',');
+            }
+            json.push_str(&proyect.to_json());
+        }
+        json.push(']');
+        json
     }
 
     // %self indica que solo sera de lectura, ademas da a entender que no es una funcion estatica y puede llamarse con "." en lugar de "::"
     pub fn list_proyects(&self) {
-    println!("Listing projects...");
+        if self.projects.is_empty() {
+            println!("No projects found.");
+        } else {
+            println!("Projects:");
+            for proyect in &self.projects {
+                println!("- {}", proyect.name);
+            }
+        }
     }
 
     pub fn create_proyect(&mut self, name: &str) {
-        // tenemos que utilizar self para acceder a la variable projects (es como un this.)
+        let id = self.next_id;
+        self.next_id += 1;
+
         self.projects.push(Proyect {
+            id,
             name: name.to_string(),
         });
+
+        let projects_json = self.projects_to_json();
+
+        fs::write("projects.json", projects_json).expect("Unable to write file");
+        
         println!("Project '{}' created.", name);
     }
 
