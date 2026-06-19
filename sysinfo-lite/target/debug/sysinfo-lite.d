@@ -1,0 +1,1 @@
+/home/bartoloni/Documentos/proyectosRust/sysinfo-lite/target/debug/sysinfo-lite: /home/bartoloni/Documentos/proyectosRust/sysinfo-lite/src/main.rs /home/bartoloni/Documentos/proyectosRust/sysinfo-lite/src/system.rs
