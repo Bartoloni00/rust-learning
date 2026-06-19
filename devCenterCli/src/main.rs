@@ -1,3 +1,8 @@
+mod devCommands;
+
 fn main() {
-    println!("Hello, world!");
+    devCommands::list_proyects();
+    devCommands::create_proyect("MyProject");
+    devCommands::delete_proyect("MyProject");
+    devCommands::execute_proyect("MyProject");
 }
