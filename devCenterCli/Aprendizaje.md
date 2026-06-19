@@ -1,1 +1,3 @@
-todo tiene que ser camelcase sino el compilador te llora
+- todo tiene que ser camelcase sino el compilador te llora
+- target es el equivalente a vendor de PHP o node_modules de JS
+- ```use std::env;``` podemos recibir argumentos gracias a esta API de RUST
