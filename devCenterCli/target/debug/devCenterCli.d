@@ -1,1 +1,0 @@
-/home/bartoloni/Documentos/rust-learning/devCenterCli/target/debug/devCenterCli: /home/bartoloni/Documentos/rust-learning/devCenterCli/src/devCommands.rs /home/bartoloni/Documentos/rust-learning/devCenterCli/src/main.rs
