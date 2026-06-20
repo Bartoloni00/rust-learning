@@ -13,44 +13,11 @@ let mut projects: Vec<Proyect> = Vec::new();
 */
 
 use std::fs;
-
-pub struct Proyect {
-    id: usize,
-    name: String,
-    // Add more fields as needed
-}
+use crate::proyect::Proyect;
 
 pub struct DevCenter {
     projects: Vec<Proyect>,
     next_id: usize,
-}
-
-impl Proyect {
-    pub fn to_json(&self) -> String {
-        format!(r#"{{"id": {}, "name": "{}"}}"#, self.id, self.name)
-    }
-
-    pub fn json_to_vec(json: &str) -> Vec<Proyect> {
-        let mut projects = Vec::new();
-        let json = json.trim_matches(|c| c == '[' || c == ']');
-        for item in json.split("},") {
-            let item = item.trim_matches(|c| c == '{' || c == '}');
-            let mut id = 0;
-            let mut name = String::new();
-            for pair in item.split(',') {
-                let mut kv = pair.split(':');
-                let key = kv.next().unwrap().trim_matches('"').trim();
-                let value = kv.next().unwrap().trim_matches('"').trim();
-                match key {
-                    "id" => id = value.parse().unwrap(),
-                    "name" => name = value.to_string(),
-                    _ => (),
-                }
-            }
-            projects.push(Proyect { id, name });
-        }
-        projects
-    }
 }
 
 impl DevCenter {
@@ -91,14 +58,16 @@ impl DevCenter {
         json
     }
 
-    // %self indica que solo sera de lectura, ademas da a entender que no es una funcion estatica y puede llamarse con "." en lugar de "::"
+    // %self indica que solo sera de lectura, ademas da a entender 'que no es una funcion estatica y puede llamarse con "." en lugar de "::"
     pub fn list_proyects(&self) -> () {
         let data = fs::read_to_string("projects.json")
             .expect("Unable to read file");
-        
-        println!("{}", data);
 
         let projects = Proyect::json_to_vec(&data);
+
+        for project in &projects {
+            println!("Name: {}", project.name);
+        }
 
         println!("Cantidad: {}", projects.len());
     }
