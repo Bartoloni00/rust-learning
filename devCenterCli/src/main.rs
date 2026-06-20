@@ -33,8 +33,14 @@ fn main() {
             dev_center.create_proyect(name);
         }
         Some(cmd) if cmd == "remove" => {
-            let name = args.get(2).expect("El nombre del proyecto es requerido para el comando remove");
-            dev_center.delete_proyect(name);
+            let value = args
+                .get(2)
+                .expect("Tenes que pasar un nombre o id del proyecto");
+
+            match value.parse::<usize>() {
+                Ok(id) => dev_center.delete_proyect(None, Some(id)),
+                Err(_) => dev_center.delete_proyect(Some(value), None),
+            }
         }
         Some(cmd) if cmd == "execute" => {
             let name = args.get(2).expect("El nombre del proyecto es requerido para el comando execute");

@@ -58,6 +58,15 @@ impl DevCenter {
         json
     }
 
+    fn find_project_index(&self, name: Option<&str>, id: Option<usize>) -> Option<usize> {
+    self.projects.iter().position(|p| {
+        match (name, id) {
+            (Some(name), _) => p.name == name,
+            (_, Some(id)) => p.id == id,
+            _ => false,
+        }
+    })
+}
     // %self indica que solo sera de lectura, ademas da a entender 'que no es una funcion estatica y puede llamarse con "." en lugar de "::"
     pub fn list_proyects(&self) -> () {
         let data = fs::read_to_string("projects.json")
@@ -100,8 +109,26 @@ impl DevCenter {
         println!("Project '{}' created.", name);
     }
 
-    pub fn delete_proyect(&mut self, name: &str) -> () {
-        println!("Deleting project: {}", name);
+    pub fn delete_proyect(&mut self, name: Option<&str>, id: Option<usize>) {
+
+        let index = self.find_project_index(name, id);
+
+        match index {
+            Some(index) => {
+                let removed = self.projects.remove(index);
+
+                let projects_json = self.projects_to_json();
+
+                fs::write("projects.json", projects_json)
+                    .expect("Unable to write file");
+
+                println!("Proyecto eliminado: {}", removed.name);
+            }
+
+            None => {
+                println!("No se encontró el proyecto");
+            }
+        }
     }
 
     pub fn execute_proyect(&self, name: &str) -> () {
