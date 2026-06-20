@@ -34,7 +34,6 @@ impl Proyect {
         let mut projects = Vec::new();
         let json = json.trim_matches(|c| c == '[' || c == ']');
         for item in json.split("},") {
-            println!("Parsing item: {}", item);
             let item = item.trim_matches(|c| c == '{' || c == '}');
             let mut id = 0;
             let mut name = String::new();
@@ -58,9 +57,25 @@ impl DevCenter {
 
     // Esto seria un constructor para la estructura DevCenter, que inicializa el vector projects como un vector vacío.
     pub fn new() -> Self {
-        DevCenter {
+        let mut dev_center = DevCenter {
             projects: Vec::new(),
             next_id: 0,
+        };
+
+        dev_center.load_proyects_from_file();
+
+        dev_center
+    }
+
+    fn load_proyects_from_file(&mut self) -> () {
+        let data = fs::read_to_string("projects.json")
+            .expect("Unable to read file");
+        
+        self.projects = Proyect::json_to_vec(&data);
+        if let Some(max_id) = self.projects.iter().map(|p| p.id).max() {
+            self.next_id = max_id + 1;
+        } else {
+            self.next_id = 0;
         }
     }
 
