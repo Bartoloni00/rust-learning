@@ -72,6 +72,18 @@ impl DevCenter {
         println!("Cantidad: {}", projects.len());
     }
 
+    // Con Option<&str> y Option<usize> se permite que los parámetros name e id sean opcionales, lo que significa que pueden ser Some(valor) o None.
+    pub fn get_proyect(&self, name: Option<&str>, id: Option<usize>) -> Option<&Proyect> {
+        if name.is_none() && id.is_none() {
+            panic!("Tenes que pasarme un valor. asi no puedo encontrar el proyecto");
+        }
+
+        self.projects.iter().find(|p| {
+            (name.is_some() && p.name == name.unwrap()) ||
+            (id.is_some() && p.id == id.unwrap())
+        })
+    }
+
     pub fn create_proyect(&mut self, name: &str) -> () {
         let id = self.next_id;
         self.next_id += 1;
@@ -94,5 +106,5 @@ impl DevCenter {
 
     pub fn execute_proyect(&self, name: &str) -> () {
         println!("Executing project: {}", name);
-    }
+    }       
 }
