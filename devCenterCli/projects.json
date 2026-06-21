@@ -1,1 +1,1 @@
-[{"id": 2, "name": "prueba"},{"id": 3, "name": "prueba2"},{"id": 4, "name": "prueba3"},{"id": 5, "name": "abraham"}]
+[{"id": 2, "name": "prueba", "script_path": ""},{"id": 3, "name": "prueba2", "script_path": ""},{"id": 4, "name": "prueba3", "script_path": ""},{"id": 5, "name": "abraham", "script_path": ""},{"id": 6, "name": "Handystock", "script_path": "~/Documentos/rust-learning/devCenterCli/scripts/Handystock.sh"}]

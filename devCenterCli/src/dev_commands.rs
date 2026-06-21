@@ -93,13 +93,14 @@ impl DevCenter {
         })
     }
 
-    pub fn create_proyect(&mut self, name: &str) -> () {
+    pub fn create_proyect(&mut self, name: &str, script_path: Option<&str>) -> () {
         let id = self.next_id;
         self.next_id += 1;
 
         self.projects.push(Proyect {
             id,
             name: name.to_string(),
+            script_path: script_path.map(|s| s.to_string()),
         });
 
         let projects_json = self.projects_to_json();

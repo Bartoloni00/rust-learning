@@ -24,13 +24,22 @@ fn main() {
             };
 
             match project {
-                Some(project) => println!("Encontrado: {} - {}", project.id, project.name),
+                Some(project) => {
+                    println!("ID: {}", project.id);
+                    println!("Nombre: {}", project.name);
+                    if let Some(script_path) = &project.script_path {
+                        println!("Ruta del script: {}", script_path);
+                    } else {
+                        println!("Ruta del script: No especificada");
+                    }
+                },
                 None => println!("Proyecto no encontrado"),
             }
         }
         Some(cmd) if cmd == "add" => {
             let name = args.get(2).expect("El nombre del proyecto es requerido para el comando add");
-            dev_center.create_proyect(name);
+            let script_path = args.get(3).map(|s| s.as_str());
+            dev_center.create_proyect(name, script_path);
         }
         Some(cmd) if cmd == "remove" => {
             let value = args
