@@ -52,8 +52,14 @@ fn main() {
             }
         }
         Some(cmd) if cmd == "execute" => {
-            let name = args.get(2).expect("El nombre del proyecto es requerido para el comando execute");
-            dev_center.execute_proyect(name);
+           let value = args
+                .get(2)
+                .expect("Tenes que pasar un nombre o id del proyecto");
+
+            match value.parse::<usize>() {
+                Ok(id) => dev_center.execute_proyect(None, Some(id)),
+                Err(_) => dev_center.execute_proyect(Some(value), None),
+            }
         }
         _ => println!("Comando no reconocido. Usa 'list', 'get <name>', 'add <name>', 'remove <name>' o 'execute <name>'."),
     }

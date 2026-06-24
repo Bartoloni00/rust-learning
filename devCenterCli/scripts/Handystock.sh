@@ -8,9 +8,14 @@ php artisan serve
 exec bash
 "
 
-gnome-terminal -- bash -c "
+gnome-terminal -- bash -ic "
 cd /home/bartoloni/Documentos/HandyStock
+
+source ~/.nvm/nvm.sh
+nvm use 24
+
 npm run dev
+
 exec bash
 "
 

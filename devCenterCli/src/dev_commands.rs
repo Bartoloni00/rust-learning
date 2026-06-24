@@ -13,6 +13,7 @@ let mut projects: Vec<Proyect> = Vec::new();
 */
 
 use std::fs;
+use std::process::Command;
 use crate::proyect::Proyect;
 
 pub struct DevCenter {
@@ -132,7 +133,31 @@ impl DevCenter {
         }
     }
 
-    pub fn execute_proyect(&self, name: &str) -> () {
-        println!("Executing project: {}", name);
+    pub fn execute_proyect(&self, name: Option<&str>, id: Option<usize>) -> () {
+        let project = self.get_proyect(name, id);
+        
+        match project {
+            Some(project) => {
+                match &project.script_path {
+                    Some(path) => {
+                        let result = Command::new("bash")
+                            .arg(path)
+                            .spawn();
+
+                        match result {
+                            Ok(__) => println!("Proyecto '{}' ejecutado correctamente.", project.name),
+                            Err(e) => println!("Error al ejecutar el proyecto '{}': {}", project.name, e),
+                        }
+                    }
+                    None => {
+                        println!("El proyecto '{}' no tiene una ruta de script especificada.", project.name);
+                    }
+
+                }
+            }
+            None => {
+                println!("No se encontró el proyecto {:?}.", name);
+            }
+        }
     }       
 }
