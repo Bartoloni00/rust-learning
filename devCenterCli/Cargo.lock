@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "devCenterCli"
-version = "0.1.0"
+name = "devCenter"
+version = "1.0.0"

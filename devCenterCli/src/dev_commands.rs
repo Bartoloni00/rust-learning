@@ -12,9 +12,10 @@ pub struct Proyect {
 let mut projects: Vec<Proyect> = Vec::new();
 */
 
-use std::fs;
 use std::process::Command;
 use crate::proyect::Proyect;
+use std::path::PathBuf;
+use std::{env, fs};
 
 pub struct DevCenter {
     projects: Vec<Proyect>,
@@ -25,6 +26,8 @@ impl DevCenter {
 
     // Esto seria un constructor para la estructura DevCenter, que inicializa el vector projects como un vector vacío.
     pub fn new() -> Self {
+        Self::initialize_storage();
+
         let mut dev_center = DevCenter {
             projects: Vec::new(),
             next_id: 0,
@@ -35,8 +38,21 @@ impl DevCenter {
         dev_center
     }
 
+    fn initialize_storage() {
+        let devcenter_dir = Self::get_devcenter_dir();
+
+        fs::create_dir_all(
+            devcenter_dir.join("scripts")
+        ).expect("No se pudo crear la carpeta scripts");
+
+        let projects_file = Self::get_projects_file();
+        if !projects_file.exists() {
+            fs::write(projects_file, "[]").expect("No se pudo crear el archivo projects.json");
+        }
+    }
+
     fn load_proyects_from_file(&mut self) -> () {
-        let data = fs::read_to_string("projects.json")
+        let data = fs::read_to_string(Self::get_projects_file())
             .expect("Unable to read file");
         
         self.projects = Proyect::json_to_vec(&data);
@@ -60,20 +76,40 @@ impl DevCenter {
     }
 
     fn find_project_index(&self, name: Option<&str>, id: Option<usize>) -> Option<usize> {
-    self.projects.iter().position(|p| {
-        match (name, id) {
-            (Some(name), _) => p.name == name,
-            (_, Some(id)) => p.id == id,
-            _ => false,
-        }
-    })
-}
+        self.projects.iter().position(|p| {
+            match (name, id) {
+                (Some(name), _) => p.name == name,
+                (_, Some(id)) => p.id == id,
+                _ => false,
+            }
+        })
+    }
+
+    /**
+     * Busca el directorio de configuración de DevCenter en el sistema del usuario.
+     * DevCenter utiliza este directorio para almacenar archivos de configuración y datos relacionados con los proyectos
+     */
+    fn get_devcenter_dir() -> PathBuf {
+        let home = env::var("HOME").expect("No se pudo obtener Home");
+
+        PathBuf::from(home).join(".devcenter")
+    }
+
+    fn get_projects_file() -> PathBuf {
+        Self::get_devcenter_dir().join("projects.json")
+    }
+
     // %self indica que solo sera de lectura, ademas da a entender 'que no es una funcion estatica y puede llamarse con "." en lugar de "::"
     pub fn list_proyects(&self) -> () {
-        let data = fs::read_to_string("projects.json")
+        let data = fs::read_to_string(Self::get_projects_file())
             .expect("Unable to read file");
 
         let projects = Proyect::json_to_vec(&data);
+
+        if projects.is_empty() {
+            println!("No hay proyectos registrados.");
+            return;
+        }
 
         for project in &projects {
             println!("Name: {}", project.name);
@@ -98,15 +134,29 @@ impl DevCenter {
         let id = self.next_id;
         self.next_id += 1;
 
+        let script_path = match script_path {
+            Some(path) => {
+                let destination = Self::get_devcenter_dir()
+                    .join("scripts")
+                    .join(format!("{}_script.sh", name));
+
+                fs::copy(path, &destination).expect("No se pudo copiar el script");
+
+                Some(destination.to_string_lossy().to_string())
+            }
+
+            None => None,
+        };
+
         self.projects.push(Proyect {
             id,
             name: name.to_string(),
-            script_path: script_path.map(|s| s.to_string()),
+            script_path,
         });
 
         let projects_json = self.projects_to_json();
 
-        fs::write("projects.json", projects_json).expect("Unable to write file");
+        fs::write(Self::get_projects_file(), projects_json).expect("Unable to write file");
         
         println!("Project '{}' created.", name);
     }
@@ -119,9 +169,12 @@ impl DevCenter {
             Some(index) => {
                 let removed = self.projects.remove(index);
 
+                if let Some(path) = &removed.script_path {
+                    let _ = fs::remove_file(path);
+                }
                 let projects_json = self.projects_to_json();
 
-                fs::write("projects.json", projects_json)
+                fs::write(Self::get_projects_file(), projects_json)
                     .expect("Unable to write file");
 
                 println!("Proyecto eliminado: {}", removed.name);
