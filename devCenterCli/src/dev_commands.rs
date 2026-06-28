@@ -38,6 +38,14 @@ impl DevCenter {
         dev_center
     }
 
+    fn save_projects(&self) {
+        let json = serde_json::to_string_pretty(&self.projects)
+            .expect("No se pudo serializar");
+
+        fs::write(Self::get_projects_file(), json)
+            .expect("No se pudo escribir el archivo");
+    }
+
     fn initialize_storage() {
         let devcenter_dir = Self::get_devcenter_dir();
 
@@ -55,24 +63,14 @@ impl DevCenter {
         let data = fs::read_to_string(Self::get_projects_file())
             .expect("Unable to read file");
         
-        self.projects = Proyect::json_to_vec(&data);
+        self.projects = serde_json::from_str(&data)
+            .expect("No se pudo leer el JSON");
+        
         if let Some(max_id) = self.projects.iter().map(|p| p.id).max() {
             self.next_id = max_id + 1;
         } else {
             self.next_id = 0;
         }
-    }
-
-    fn projects_to_json(&self) -> String {
-        let mut json = String::from("[");
-        for (i, proyect) in self.projects.iter().enumerate() {
-            if i > 0 {
-                json.push(',');
-            }
-            json.push_str(&proyect.to_json());
-        }
-        json.push(']');
-        json
     }
 
     fn find_project_index(&self, name: Option<&str>, id: Option<usize>) -> Option<usize> {
@@ -100,22 +98,17 @@ impl DevCenter {
     }
 
     // %self indica que solo sera de lectura, ademas da a entender 'que no es una funcion estatica y puede llamarse con "." en lugar de "::"
-    pub fn list_proyects(&self) -> () {
-        let data = fs::read_to_string(Self::get_projects_file())
-            .expect("Unable to read file");
-
-        let projects = Proyect::json_to_vec(&data);
-
-        if projects.is_empty() {
+    pub fn list_proyects(&self) {
+        if self.projects.is_empty() {
             println!("No hay proyectos registrados.");
             return;
         }
 
-        for project in &projects {
+        for project in &self.projects {
             println!("Name: {}", project.name);
         }
 
-        println!("Cantidad: {}", projects.len());
+        println!("Cantidad: {}", self.projects.len());
     }
 
     // Con Option<&str> y Option<usize> se permite que los parámetros name e id sean opcionales, lo que significa que pueden ser Some(valor) o None.
@@ -157,10 +150,8 @@ impl DevCenter {
             script_path,
         });
 
-        let projects_json = self.projects_to_json();
+        self.save_projects();
 
-        fs::write(Self::get_projects_file(), projects_json).expect("Unable to write file");
-        
         println!("Project '{}' created.", name);
     }
 
@@ -175,11 +166,7 @@ impl DevCenter {
                 if let Some(path) = &removed.script_path {
                     let _ = fs::remove_file(path);
                 }
-                let projects_json = self.projects_to_json();
-
-                fs::write(Self::get_projects_file(), projects_json)
-                    .expect("Unable to write file");
-
+                self.save_projects();
                 println!("Proyecto eliminado: {}", removed.name);
             }
 
