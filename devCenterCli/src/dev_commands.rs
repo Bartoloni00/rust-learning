@@ -155,6 +155,26 @@ impl DevCenter {
         println!("Project '{}' created.", name);
     }
 
+    pub fn update_name(&mut self, id: usize, name: &str) {
+        if let Some(index) = self.find_project_index(None, Some(id)) {
+            self.projects[index].name = name.to_string();
+            self.save_projects();
+            println!("Nombre actualizado.");
+        } else {
+            println!("Proyecto no encontrado.");
+        }
+    }
+
+    pub fn update_script(&mut self, id: usize, script: &str) {
+        if let Some(index) = self.find_project_index(None, Some(id)) {
+            self.projects[index].script_path = Some(script.to_string());
+            self.save_projects();
+            println!("Script actualizado.");
+        } else {
+            println!("Proyecto no encontrado.");
+        }
+    }
+
     pub fn delete_proyect(&mut self, name: Option<&str>, id: Option<usize>) {
 
         let index = self.find_project_index(name, id);

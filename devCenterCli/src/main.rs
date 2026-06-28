@@ -41,6 +41,31 @@ fn main() {
             let script_path = args.get(3).map(|s| s.as_str());
             dev_center.create_proyect(name, script_path);
         }
+
+        Some(cmd) if cmd == "update" => {
+            let id = args[2]
+                .parse::<usize>()
+                .expect("ID inválido");
+
+            match args.get(3).map(|s| s.as_str()) {
+                Some("--name") => {
+                    let name = args.get(4).expect("Falta el nombre");
+                    dev_center.update_name(id, name);
+                }
+
+                Some("--script") => {
+                    let script = args.get(4).expect("Falta la ruta");
+                    dev_center.update_script(id, script);
+                }
+
+                _ => {
+                    println!("Uso:");
+                    println!("devcenter update <id> --name <nuevo_nombre>");
+                    println!("devcenter update <id> --script <ruta>");
+                }
+            }
+        }
+
         Some(cmd) if cmd == "remove" => {
             let value = args
                 .get(2)
