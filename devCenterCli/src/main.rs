@@ -1,6 +1,7 @@
 use std::env;
 mod dev_commands;
 mod proyect;
+mod tui;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -10,6 +11,9 @@ fn main() {
     let mut dev_center = dev_commands::DevCenter::new();
 
     match command {
+        Some(cmd) if cmd == "tui" => {
+            tui::start().unwrap();
+        }
         Some(cmd) if cmd == "list" => dev_center.list_proyects(),
         //%get es para obtener un proyecto por nombre o id, el valor se toma del tercer argumento (args[2]).
         // basicamente si no se puede parsear como un numero, se asume que es un nombre.
