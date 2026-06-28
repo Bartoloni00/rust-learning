@@ -139,6 +139,9 @@ impl DevCenter {
                 let destination = Self::get_devcenter_dir()
                     .join("scripts")
                     .join(format!("{}_script.sh", name));
+                
+                println!("Copiando desde: {}", path);
+                println!("Hacia: {:?}", destination);
 
                 fs::copy(path, &destination).expect("No se pudo copiar el script");
 
